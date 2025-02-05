@@ -1,57 +1,26 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Bookstore.Web
 {
     public class Startup
     {
-        private readonly IConfiguration _configuration;
-
-        public Startup(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(logging =>
-            {
-                logging.AddConfiguration(_configuration.GetSection("Logging"));
-                logging.AddConsole();
-                logging.AddDebug();
-            });
-
-            // Add other services here
-            services.AddControllersWithViews();
+            // Configure services here
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();
-            }
+            LoggingSetup.ConfigureLogging();
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseRouting();
+            ConfigurationSetup.ConfigureConfiguration();
 
-            app.UseAuthorization();
+            // Update these methods to work with ASP.NET Core
+            DependencyInjectionSetup.ConfigureDependencyInjection(app);
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+            AuthenticationConfig.ConfigureAuthentication(app);
         }
     }
 }
