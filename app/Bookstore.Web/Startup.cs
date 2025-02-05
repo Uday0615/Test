@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Bookstore.Web.Logging; // Assuming LoggingSetup is in this namespace
 
 namespace Bookstore.Web
 {
