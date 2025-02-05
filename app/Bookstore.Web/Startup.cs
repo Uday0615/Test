@@ -1,26 +1,57 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Bookstore.Web
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services)
+        private readonly IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
         {
-            // Configure services here
+            _configuration = configuration;
         }
 
-        public void Configure(IApplicationBuilder app, IHostEnvironment env)
+        public void ConfigureServices(IServiceCollection services)
         {
-            LoggingSetup.ConfigureLogging();
+            services.AddLogging(logging =>
+            {
+                logging.AddConfiguration(_configuration.GetSection("Logging"));
+                logging.AddConsole();
+                logging.AddDebug();
+            });
 
-            ConfigurationSetup.ConfigureConfiguration();
+            // Add other services here
+            services.AddControllersWithViews();
+        }
 
-            // Update these methods to work with ASP.NET Core
-            DependencyInjectionSetup.ConfigureDependencyInjection(app);
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
+            }
 
-            AuthenticationConfig.ConfigureAuthentication(app);
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
