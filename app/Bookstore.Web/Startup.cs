@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Hosting;
+using Bookstore.Web.Configuration; // Assuming this namespace contains the setup classes
 
 namespace Bookstore.Web
 {
@@ -11,7 +13,7 @@ namespace Bookstore.Web
             // Configure services here
         }
 
-        public void Configure(IApplicationBuilder app, IHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             LoggingSetup.ConfigureLogging();
 
@@ -21,6 +23,29 @@ namespace Bookstore.Web
             DependencyInjectionSetup.ConfigureDependencyInjection(app);
 
             AuthenticationConfig.ConfigureAuthentication(app);
+
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
